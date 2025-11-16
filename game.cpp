@@ -4,6 +4,8 @@
 // Universal Libraries
 #include "consoleGameEngine.h"
 #include "menues.h"
+#include "scenes.h"
+using namespace std;
 
 // Constant Definitions
 int player_x = WIDTH / 2;
@@ -23,7 +25,6 @@ void introductionCinematic();
 
 // Menues
 bool titleScreen();
-using namespace std;
 
 // ##### MAIN GAME LOOP ###############################################################################################
 
@@ -34,6 +35,7 @@ int main(int argc, char const *argv[])
 
     if (titleOption)
     {
+        introductionCinematic();
         initializeMap(); // Set up the starting point of the map
 
         // Game loop that runs as long as the character continues to play
@@ -131,5 +133,7 @@ void updateGame(int key)
 
 // ------------------------------- SCENES ------------------------------------------------------
 void introductionCinematic() {
-    
+    system("cls");
+    scene1.play();
+    this_thread::sleep_for(chrono::seconds(1));
 }
