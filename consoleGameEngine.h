@@ -4,7 +4,7 @@
 #include <chrono>
 #include <algorithm>
 #include "maps.h"
-using namespace std;
+// using namespace std;
 
 #define WIDTH 160
 #define HEIGHT 40
