@@ -2,7 +2,7 @@
 #include <thread>
 #include <chrono>
 #include <algorithm> 
-#include <string> 
+#include "C:\Users\aunoc\OneDrive\Desktop\ECE 114 Final Project\maps.h"
 
 // --- PLATFORM-SPECIFIC HEADERS & IMPLEMENTATION SELECTION ---
 
@@ -125,67 +125,13 @@ int player_y = 5;
 char map[HEIGHT][WIDTH];
 
 
-// 2. CUSTOM GARDEN MAP DATA (160x40) - LENGTHS VERIFIED AT 160
-const std::string GARDEN_MAP_DATA[] = {
-"################################################################################################################################################################",
-"#. . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .#",
-"#.                                                                                                                                                             .#",
-"#.                                                                                                                                                             .#",
-"#.                                                                                                                                                             .#",
-"#.                                                                                                                               ^                             .#",
-"#.                                                                                                                                                             .#",
-"#.                              ^                                                                                                                              .#",
-"#.                              _-_                                                                                                                            .#",
-"#.                            /~~   ~~\\                                                                                                                          .#",
-"#.                          /~~         ~~\\                                                                                                                    .#",
-"#.                          {               }                                                                                                                    .#",
-"#.                            \\ _-     -_ /                                                                                                                     .#",
-"#.                              ~  \\ //                                                                                                                         .#",
-"#.                            _- -  | | _- _                                                                                                                    .#",
-"#.                ^           _ -   | |   -_                                                                                                                    .#",
-"#.                 ^          // \\                                                                                                                              .#",
-"#.                  ^                                                                                                                                           .#",
-"#.                   ^ ^              ^                                                               ^                                                         .#",
-"#.                       ^                                                                                                                                      .#",
-"#.                                                                                                                                                             .#",
-"#.                                                                                                                                                             .#",
-"#.                                                                                                                                                             .#",
-"#.                                                                                                                                                             .#",
-"#.                                                                                                                                                             .#",
-"#.                                                                                                                                                             .#",
-"#.                                                                                                                                                             .#",
-"#.                                                                                                                                                             .#",
-"#.                                                                                                                                                             .#",
-"#.                                                                                                                                                             .#",
-"#.                                                                                                                                                             .#",
-"#.                                                                                                                                                             .#",
-"#.                                                                                                                                                             .#",
-"#.                                                                                                                                                             .#",
-"#.                                                                                                                                                             .#",
-"#.                                                                                                                                                             .#",
-"#.                                                                                                                                                             .#",
-"#.                                                                                                                                                             .#",
-"#.                                                                                                                                                             .#",
-"################################################################################################################################################################"
-};
+// 2. CUSTOM GARDEN MAP DATA (160x40) - Based on user input, padded to 40 lines
 
 
 // 3. InitializeMap implementation
 void InitializeMap() {
-    // Check for map size validity 
-    if (sizeof(GARDEN_MAP_DATA) / sizeof(GARDEN_MAP_DATA[0]) != HEIGHT) {
-        cerr << "Error: GARDEN_MAP_DATA array height does not match HEIGHT constant." << endl;
-        exit(1);
-    }
-    
     for (int y = 0; y < HEIGHT; ++y) {
-        // This check ensures we don't proceed with misaligned data
-        if (GARDEN_MAP_DATA[y].length() != WIDTH) {
-            cerr << "Error: Map row " << y << " length (" << GARDEN_MAP_DATA[y].length() << ") does not match WIDTH constant (" << WIDTH << ")." << endl;
-            exit(1);
-        }
         for (int x = 0; x < WIDTH; ++x) {
-            // Access character using string's operator[]
             map[y][x] = GARDEN_MAP_DATA[y][x];
         }
     }
@@ -194,7 +140,7 @@ void InitializeMap() {
     player_y = 5;
 }
 
-// 4. IsObstacle helper function
+// 4. IsObstacle helper function (UPDATED for your pond characters)
 bool IsObstacle(char tile) {
     // Standard Obstacles
     if (tile == '#') {
@@ -202,8 +148,7 @@ bool IsObstacle(char tile) {
     }
     
     // Custom Garden/Pond Obstacles
-    if (tile == '^'    // Tree
-        || tile == '|' // Pond wall/Trunk
+    if (tile == '|' // Pond wall/Trunk
         || tile == '-' // Pond wall
         || tile == '~' // Water
         || tile == '/' // Water edge/Pond curve
@@ -263,7 +208,7 @@ void DrawGame() {
     Console::DrawChar(player_x, player_y, player_char);
     
     Console::GoToXY(0, HEIGHT + 1);
-    cout << "Press 'q' to exit. Use WASD to move. Theme: CUSTOM GARDEN (160x40 - FINAL). Pos: (" << player_x << ", " << player_y << ")    ";
+    cout << "Press 'q' to exit. Use WASD to move. Theme: CUSTOM GARDEN (160x40). Pos: (" << player_x << ", " << player_y << ")    ";
     cout.flush();
 }
 
@@ -282,7 +227,7 @@ int main() {
 
         DrawGame();
         
-        this_thread::sleep_for(chrono::milliseconds(50)); 
+        this_thread::sleep_for(chrono::milliseconds(5)); 
     }
 
     Console::Shutdown(); 
