@@ -3,7 +3,6 @@
 #include <thread>
 #include <chrono>
 #include <algorithm>
-#include "maps.h"
 // using namespace std;
 
 #define WIDTH 160

@@ -3,15 +3,17 @@
 // Ahmed Ahmed
 // Universal Libraries
 #include "consoleGameEngine.h"
+#include "mechanics.h"
 #include "menues.h"
 #include "scenes.h"
+#include "maps.h"
 using namespace std;
 
 // Constant Definitions
 int player_x = WIDTH / 2;
 int player_y = HEIGHT / 2;
 char map[HEIGHT][WIDTH];
-char player_c = '^';
+char player_c = 'V';
 
 // Function declarations
 // Mechanics
@@ -20,7 +22,9 @@ void initializeMap();
 void initializeGardenMap();
 void updateGame(int key);
 void drawGame();
-bool IsObstacle(char tile);
+bool isObstacle(char tile);
+
+// -------------------------------- SCENES ------------------------------------------------------
 void introductionCinematic();
 
 // Menues
@@ -61,7 +65,6 @@ int main(int argc, char const *argv[])
 
 // Function definitions
 
-
 void initializeConsole()
 {
     CONSOLE_CURSOR_INFO cursorInfo;
@@ -75,24 +78,53 @@ void initializeMap()
     system("cls");
     for (int y = 0; y < HEIGHT; y++)
     {
-        for (int x = 0; x < WIDTH; x++)
+        // for (int x = 0; x < WIDTH; x++)
+        // {
+        //     if (x == 0 || x == WIDTH - 1 || y == 0 || y == HEIGHT - 1)
+        //     {
+        //         map[y][x] = '#';
+        //     }
+        //     else
+        //     {
+        //         map[y][x] = ' ';
+        //     }
+        // }
+
+        for (int x = 0; x < WIDTH; ++x)
         {
-            if (x == 0 || x == WIDTH - 1 || y == 0 || y == HEIGHT - 1)
-            {
-                map[y][x] = '#';
-            }
-            else
-            {
-                map[y][x] = ' ';
-            }
+            map[y][x] = GARDEN_MAP_DATA[y][x];
         }
     }
+}
+
+bool isObstacle(char tile)
+{
+    if (tile == '#')
+    {
+        return true;
+    }
+
+    if (tile == '|'     // Pond wall/Trunk
+        || tile == '-'  // Pond wall
+        || tile == '~'  // Water
+        || tile == '/'  // Water edge/Pond curve
+        || tile == '\\' // Water edge/Pond curve
+        || tile == '{'  // Pond side
+        || tile == '}'  // Pond side
+        || tile == '('  // Tree part
+        || tile == ')'  // Tree part
+        || tile == '_') // Pond/structure top
+    {
+        return true;
+    }
+
+    return false; // Return false for all other traversable characters
 }
 
 void drawGame()
 {
     goToXY(0, 0);
-    for (int y = 0; y < HEIGHT; ++y)
+    for (int y = 0; y < HEIGHT; y++)
     {
         // cout.write is faster than repeated << operators for raw char arrays.
         cout.write(map[y], WIDTH);
@@ -108,31 +140,42 @@ void drawGame()
     cout.flush();
 }
 
-
-
 void updateGame(int key)
 {
-    drawChar(player_x, player_y, map[player_y][player_x]);
+    int next_x = player_x;
+    int next_y = player_y;
+
     switch (key)
     {
     case 'w':
-        player_y = max(1, player_y - 1);
+        next_y = player_y - 1;
         break;
     case 's':
-        player_y = min(HEIGHT - 2, player_y + 1);
+        next_y = player_y + 1;
         break;
     case 'a':
-        player_x = max(1, player_x - 1);
+        next_x = player_x - 1;
         break;
     case 'd':
-        player_x = min(WIDTH - 2, player_x + 1);
+        next_x = player_x + 1;
         break;
+    }
+
+    if (next_x >= 0 && next_x < WIDTH && next_y >= 0 && next_y < HEIGHT)
+    {
+        char nextTile = map[next_y][next_x];
+        if (!isObstacle(nextTile))
+        {
+            drawChar(player_x, player_y, map[player_y][player_x]);
+            player_x = next_x;
+            player_y = next_y;
+        }
     }
 }
 
-
 // ------------------------------- SCENES ------------------------------------------------------
-void introductionCinematic() {
+void introductionCinematic()
+{
     system("cls");
     scene1.play();
     this_thread::sleep_for(chrono::seconds(1));
