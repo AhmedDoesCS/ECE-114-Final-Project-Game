@@ -15,7 +15,7 @@ int player_y = HEIGHT / 2;
 char map[HEIGHT][WIDTH];
 char player_c = 'V';
 
-int enemy_move_throttle = 5; // Enemy moves only once every 5 game loops (frames)
+int enemy_move_throttle = 8; // Enemy moves only once every 5 game loops (frames)
 int enemy_frame_counter = 0; // Counts frames until next enemy move
 
 // Function declarations

@@ -46,3 +46,9 @@ bool isObstacle(char tile)
 
     return false; // Return false for all other traversable characters
 }
+
+void handleAttack(int dx, int dy) {
+    if (dx == 0 && dy == 0 ) {
+        
+    }
+}
