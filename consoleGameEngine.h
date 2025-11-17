@@ -14,6 +14,14 @@
 #include <conio.h>
 #endif
 
+void initializeConsole()
+{
+    CONSOLE_CURSOR_INFO cursorInfo;
+    GetConsoleCursorInfo(GetStdHandle(STD_OUTPUT_HANDLE), &cursorInfo);
+    cursorInfo.bVisible = FALSE;
+    SetConsoleCursorInfo(GetStdHandle(STD_OUTPUT_HANDLE), &cursorInfo);
+}
+
 void goToXY(int x, int y)
 {
     COORD c = {
@@ -37,3 +45,4 @@ int getLiveInput()
     }
     return 0;
 }
+

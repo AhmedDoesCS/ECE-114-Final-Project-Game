@@ -15,14 +15,16 @@ int player_y = HEIGHT / 2;
 char map[HEIGHT][WIDTH];
 char player_c = 'V';
 
+int enemy_move_throttle = 5; // Enemy moves only once every 5 game loops (frames)
+int enemy_frame_counter = 0; // Counts frames until next enemy move
+
 // Function declarations
 // Mechanics
-void initializeConsole();
 void initializeMap();
 void initializeGardenMap();
 void updateGame(int key);
 void drawGame();
-bool isObstacle(char tile);
+void UpdateNPCs();
 
 // -------------------------------- SCENES ------------------------------------------------------
 void introductionCinematic();
@@ -41,6 +43,7 @@ int main(int argc, char const *argv[])
     {
         introductionCinematic();
         initializeMap(); // Set up the starting point of the map
+        InitializeNPCs();
 
         // Game loop that runs as long as the character continues to play
         while (true)
@@ -52,7 +55,15 @@ int main(int argc, char const *argv[])
             {
                 updateGame(userInput);
             }
-
+            if (enemy_frame_counter >= enemy_move_throttle)
+            { // <--- CHECK IF COUNTER MET THROTTLE
+                UpdateNPCs();
+                enemy_frame_counter = 0; // Reset the counter after movement
+            }
+            else
+            {
+                enemy_frame_counter++; // Increment the counter every loop iteration
+            }
             drawGame();
             this_thread::sleep_for(chrono::milliseconds(5));
         }
@@ -65,30 +76,13 @@ int main(int argc, char const *argv[])
 
 // Function definitions
 
-void initializeConsole()
-{
-    CONSOLE_CURSOR_INFO cursorInfo;
-    GetConsoleCursorInfo(GetStdHandle(STD_OUTPUT_HANDLE), &cursorInfo);
-    cursorInfo.bVisible = FALSE;
-    SetConsoleCursorInfo(GetStdHandle(STD_OUTPUT_HANDLE), &cursorInfo);
-}
+
 
 void initializeMap()
 {
     system("cls");
     for (int y = 0; y < HEIGHT; y++)
     {
-        // for (int x = 0; x < WIDTH; x++)
-        // {
-        //     if (x == 0 || x == WIDTH - 1 || y == 0 || y == HEIGHT - 1)
-        //     {
-        //         map[y][x] = '#';
-        //     }
-        //     else
-        //     {
-        //         map[y][x] = ' ';
-        //     }
-        // }
 
         for (int x = 0; x < WIDTH; ++x)
         {
@@ -97,29 +91,6 @@ void initializeMap()
     }
 }
 
-bool isObstacle(char tile)
-{
-    if (tile == '#')
-    {
-        return true;
-    }
-
-    if (tile == '|'     // Pond wall/Trunk
-        || tile == '-'  // Pond wall
-        || tile == '~'  // Water
-        || tile == '/'  // Water edge/Pond curve
-        || tile == '\\' // Water edge/Pond curve
-        || tile == '{'  // Pond side
-        || tile == '}'  // Pond side
-        || tile == '('  // Tree part
-        || tile == ')'  // Tree part
-        || tile == '_') // Pond/structure top
-    {
-        return true;
-    }
-
-    return false; // Return false for all other traversable characters
-}
 
 void drawGame()
 {
@@ -134,6 +105,14 @@ void drawGame()
         }
     }
     cout.flush();
+
+    for (int i = 0; i < MAX_ENEMIES; ++i)
+    {
+        if (enemies[i].is_alive)
+        {
+            drawChar(enemies[i].x, enemies[i].y, enemies[i].character);
+        }
+    }
 
     drawChar(player_x, player_y, player_c);
     goToXY(0, HEIGHT + 1);
@@ -169,6 +148,51 @@ void updateGame(int key)
             drawChar(player_x, player_y, map[player_y][player_x]);
             player_x = next_x;
             player_y = next_y;
+        }
+    }
+}
+
+void UpdateNPCs()
+{
+    for (int i = 0; i < MAX_ENEMIES; ++i)
+    {
+        if (!enemies[i].is_alive)
+            continue;
+
+        int next_x = enemies[i].x;
+        int next_y = enemies[i].y;
+
+        // Simple A.I.: Move one step closer to the player on the x-axis or y-axis.
+        if (abs(player_x - enemies[i].x) > abs(player_y - enemies[i].y))
+        {
+            // Move horizontally
+            next_x += (player_x > enemies[i].x) ? 1 : -1;
+        }
+        else
+        {
+            // Move vertically
+            next_y += (player_y > enemies[i].y) ? 1 : -1;
+        }
+
+        // 1. Check for Map Boundaries/Obstacles (using your existing IsObstacle)
+        if (next_x >= 0 && next_x < WIDTH && next_y >= 0 && next_y < HEIGHT && !isObstacle(map[next_y][next_x]))
+        {
+
+            // Clear the old enemy position on the screen/map array
+            drawChar(enemies[i].x, enemies[i].y, map[enemies[i].y][enemies[i].x]);
+
+            // Move the enemy
+            enemies[i].x = next_x;
+            enemies[i].y = next_y;
+        }
+
+        // 2. Check for Threat (Collision with Player)
+        if (enemies[i].x == player_x && enemies[i].y == player_y)
+        {
+            // GAME OVER logic goes here!
+            goToXY(WIDTH / 2 - 5, HEIGHT / 2);
+            cout << "!!! GAME OVER !!!";
+            // Implement exit or reset
         }
     }
 }
